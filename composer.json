@@ -3,7 +3,7 @@
     "keywords": ["Symfony 3.4 Decorate Controller Tool"],
     "homepage": "https://github.com/lamzin-andrey/symfony-tools-bundle",
     "description": "Symfony 3.4 Decorate Controller Tool generate service configuration for override third-party bundles controller",
-    "license": "Freeware",
+    "license": "MIT",
     "require": {
         "php": " ^7.2. || ^7.2.1"
     },
