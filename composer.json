@@ -1,0 +1,23 @@
+{
+    "name": "landlib/SymfonyToolsBundle",
+    "keywords": ["Symfony 3.4 Decorate Controller Tool"],
+    "homepage": "https://github.com/lamzin-andrey/symfony-toos-bundle",
+    "description": "Symfony 3.4 Decorate Controller Tool generate service configuration for override third-party bundles controller",
+    "license": "Freeware",
+    "require": {
+        "php": " ^7.2. || ^7.2.1"
+    },
+     "authors": [
+        {
+            "name": "Andrey Lamzin",
+            "email": "lamzin.an@gmail.com",
+            "homepage": "https://github.com/lamzin-andrey",
+            "role": "Developer"
+      }
+    ],
+    "autoload": {
+        "psr-4": {
+			"Landlib\\SymfonyToolsBundle\\": "symfony-tools-bundle/"
+        }
+    }
+}
