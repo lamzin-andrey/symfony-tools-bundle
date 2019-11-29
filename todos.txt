@@ -1,0 +1,6 @@
+FileUploaderService depends from LiipImagineBundle, it need add in composer.json file
+Doc readme.md.
+
+
+Symfony 3.4 Decorate Controller Tool generate service configuration for override third-party bundles controller.
+ - temporary exclude from description.
