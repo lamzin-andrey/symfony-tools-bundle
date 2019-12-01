@@ -5,7 +5,8 @@
     "description": "FileUploader Service for most simple configure FileType input with FormBuilderInterface.",
     "license": "MIT",
     "require": {
-        "php": " ^7.2. || ^7.2.1"
+        "php": " ^7.2. || ^7.2.1",
+        "liip/imagine-bundle": "~2.2.0"
     },
      "authors": [
         {
