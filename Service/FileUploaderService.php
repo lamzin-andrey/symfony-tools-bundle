@@ -5,6 +5,7 @@ use \Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Image;
+use Transliterator;
 
 // TODO service -> MyToolBundle
 
@@ -39,7 +40,7 @@ use Symfony\Component\Validator\Constraints\Image;
 		$sTargetDirectory = $this->_oRequest->server->get('DOCUMENT_ROOT') . '/' . $subdir;
 		$this->_oFileUploader->setTargetDirectory($sTargetDirectory);
 		$aOptions = $this->_oFileUploader->getFileTypeOptions();
-		$aOptions['translation_domain'] = 'Adform';
+		$aOptions['translation_domain'] = 'my_form_translations';
 		$oBuilder->add('imagefile', FileType::class, $aOptions);
  *
  *
@@ -87,6 +88,9 @@ class FileUploaderService
 	/** @property array $_aLiipImageFilters @see addLiipBundleFilter */
 	private $_aLiipImageFilters = [];
 	
+	/** @property string | null $translationDomain translation domain*/
+	private $_sTranslationDomain = null;
+	
 	
 	public function __construct(ContainerInterface $container)
 	{
@@ -112,6 +116,11 @@ class FileUploaderService
 			$sConstraintsClassName = $this->_sConstraintClassName;
 			$a['constraints'] = [new $sConstraintsClassName($this->_aConstraints)];
 		}
+		
+		if ($this->_sTranslationDomain) {
+			$a['translation_domain'] = $this->_sTranslationDomain;
+		}
+		
 		return $a;
 	}
 	/**
@@ -157,7 +166,7 @@ class FileUploaderService
 	{
 		/** @var \Symfony\Component\Translation\DataCollectorTranslator $t */
 		$t = $this->translator;
-		$this->_aConstraints['mimeTypesMessage'] = $t->trans($s, [], 'Adform');
+		$this->_aConstraints['mimeTypesMessage'] = $t->trans($s, [], $this->_sTranslationDomain);
 	}
 	/**
 	 * @param string label no translate message
@@ -166,7 +175,7 @@ class FileUploaderService
 	{
 		/** @var \Symfony\Component\Translation\DataCollectorTranslator $t */
 		$t = $this->translator;
-		$this->_sFileInputLabel = $t->trans($s, [], 'Adform');;
+		$this->_sFileInputLabel = $t->trans($s, [], $this->_sTranslationDomain);
 	}
 	
 	public function setTargetDirectory(string $sTargetDirectory)
@@ -179,7 +188,10 @@ class FileUploaderService
 	public function upload(\Symfony\Component\HttpFoundation\File\UploadedFile $file) : string
 	{
 		$originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-		$safeFilename = $this->oContainer->get('App\Service\GazelMeService')->translite_url($originalFilename);
+		$transliterator = \Transliterator::create('Any-Latin');
+		$transliteratorToASCII = \Transliterator::create('Latin-ASCII');
+		$safeFilename = $transliteratorToASCII->transliterate($transliterator->transliterate($originalFilename));
+
 		$fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
 
 		try {
@@ -190,7 +202,7 @@ class FileUploaderService
 			}
 		} catch (FileException $e) {
 			$t = $this->translator;
-			$this->_sError = $t->trans('Unable upload file', [], 'Adform');
+			$this->_sError = $t->trans('Unable upload file', [], $this->_sTranslationDomain);
 			$this->_sErrorInfo = $e->getMessage();
 			$fileName = '';
 		}
@@ -211,6 +223,17 @@ class FileUploaderService
     {
         return $this->_sTargetDirectory;
     }
+	/**
+	 * @param string $sTranslationDomain
+	**/
+	public function setTranslationDomain(string $sTranslationDomain)
+	{
+		$this->_sTranslationDomain = $sTranslationDomain;
+	}
+	public function getTranslationDomain() : ?string
+	{
+		return $this->_sTranslationDomain;
+	}
 	/**
 	 * Set Constraints type Image
 	**/

@@ -337,7 +337,7 @@ public function buildForm(FormBuilderInterface $oBuilder, array $aOptions)
 Это работает в проекте Symfony 3.4, созданом с помощью консоли Symfony CLI 4.7.3
 
 ```yaml
-# file src/config/packages/liip_imagine.yaml 
+# file config/packages/liip_imagine.yaml 
 
 liip_imagine:
     resolvers:
@@ -390,7 +390,7 @@ liip_imagine:
 ```
 
 ```yaml
-# file src/config/routes/liip_routes.yaml 
+# file config/routes/liip_routes.yaml 
 liip_imagine_filter_runtime:
     path: /media/cache/resolve/{filter}/rc/{hash}/{path}
     defaults:
