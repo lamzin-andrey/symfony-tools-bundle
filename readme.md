@@ -2,6 +2,10 @@
 
 ##	About
 
+## Install
+
+`composer require landlib/symfonytoolsbundle`
+
 This tools for more comfortable work with Symfony.
 
 ### Services
@@ -46,7 +50,7 @@ Use it in FormType class for simple configure file upload form input.
 Use FileUploaderService object in FormType class for simple configure file upload form input.
 
 ```php
-public function buildForm(FormBuilderInterface $oBuilder, array $aOptions)
+public function buildForm(FormBuilderInterface $oBuilder, array $options)
 {
 	//...
 
@@ -212,6 +216,10 @@ liip_imagine_filter:
 
 Это набор инструментов для более удобной работы с Symfony.
 
+## Установка 
+
+`composer require landlib/symfonytoolsbundle`
+
 ### Сервисы (Services)
 
 #### FileUploaderService
@@ -254,7 +262,7 @@ FileUploader Service нужен для максимально простой р�
 Используйте экземпляр класса FileUploaderService в вашем классе формы для более удобной конфигурации инпута загрузки файлов
 
 ```php
-public function buildForm(FormBuilderInterface $oBuilder, array $aOptions)
+public function buildForm(FormBuilderInterface $oBuilder, array $options)
 {
 	//...
 

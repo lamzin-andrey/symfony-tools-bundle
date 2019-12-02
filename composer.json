@@ -1,5 +1,6 @@
 {
     "name": "landlib/symfonytoolsbundle",
+    "version": "1.2.0",
     "keywords": ["Symfony 3.4 Decorate Controller Tool"],
     "homepage": "https://github.com/lamzin-andrey/symfony-tools-bundle",
     "description": "FileUploader Service for most simple configure FileType input with FormBuilderInterface.",

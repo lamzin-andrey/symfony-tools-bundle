@@ -223,6 +223,18 @@ class FileUploaderService
     {
         return $this->_sTargetDirectory;
     }
+    public function getUploadError()
+    {
+        return $this->_sError;
+    }
+    public function getUploadExceptionMessage()
+    {
+        return $this->_sErrorInfo;
+    }
+    public function getUploadErrorInfo()
+    {
+        return $this->getUploadExceptionMessage();
+    }
 	/**
 	 * @param string $sTranslationDomain
 	**/
