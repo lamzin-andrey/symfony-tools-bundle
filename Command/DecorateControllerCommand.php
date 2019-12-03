@@ -111,7 +111,7 @@ class DecorateControllerCommand extends Command
 			echo "Parse error: {$error->getMessage()}\n";
 		}
 		$sNamespace = '';
-		$sClass = '';
+		$sClass = '';//TODO _field
 
 		foreach ($ast as $oItem) {
 			if (!$sNamespace && get_class($oItem) == 'PhpParser\Node\Stmt\Namespace_') {
@@ -130,7 +130,6 @@ class DecorateControllerCommand extends Command
 					}
 				}
 			}
-
 			var_dump($this->_aUses);
 			die;
 		}
@@ -241,6 +240,7 @@ class DecorateControllerCommand extends Command
 	*/
 	private function _appendUse(\PhpParser\Node\Stmt\Use_ $oStatement) : void
 	{
+		$this->_aUses = [];
 		foreach ($oStatement->uses as $oUseUse) {
 			if (isset($oUseUse->name) && isset($oUseUse->name->parts)) {
 				$this->_aUses[] = 'use ' . join('\\', $oUseUse->name->parts) . ';';
