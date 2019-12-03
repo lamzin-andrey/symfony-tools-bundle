@@ -37,9 +37,11 @@ class DecorateControllerCommand extends Command
 	
 	/** @property bool $_bFileIsController will true if _sTargetPhpFile containts controller definition. */
 	private $_bFileIsController = false;
-	
-	
-	
+
+	/** @property array $_aUses containts 'use ... ; strings  */
+	private $_aUses = [];
+
+
 	// the name of the command (the part after "bin/console")
 	protected static $defaultName = 'landlib:decorate-controller';
 
@@ -96,7 +98,7 @@ class DecorateControllerCommand extends Command
 		
 	}
 	/**
-	 * Parse php file. Get className, public funcitons list
+	 * Parse php file. Get className, public funcitons list, set _bIsController, set _aUses
 	*/
 	private function _parseTargetFile()
 	{
@@ -108,8 +110,32 @@ class DecorateControllerCommand extends Command
 		} catch (Error $error) {
 			echo "Parse error: {$error->getMessage()}\n";
 		}
-		
-		/** var PhpParser\Node\Stmt\Namespace $m */
+		$sNamespace = '';
+		$sClass = '';
+
+		foreach ($ast as $oItem) {
+			if (!$sNamespace && get_class($oItem) == 'PhpParser\Node\Stmt\Namespace_') {
+				$m = $oItem;
+				/** @var \PhpParser\Node\Stmt\Namespace_ $m */
+				$sNamespace = join('\\', $m->name->parts);
+				/*var_dump($m->stmts[13]);
+				die;*/
+				foreach ($m->stmts as $oStatement) {
+					if (!$sClass && get_class($oStatement) == 'PhpParser\Node\Stmt\Use_') {
+						$this->_appendUse($oStatement);
+					}
+					/** @var \PhpParser\Node\Stmt\Class_ $oStatement */
+					if (!$sClass && get_class($oStatement) == 'PhpParser\Node\Stmt\Class_') {
+						$sClass = $sNamespace . '\\' . $oStatement->name;
+					}
+				}
+			}
+
+			var_dump($this->_aUses);
+			die;
+		}
+
+
 		$dumper = new NodeDumper();
 		
 		file_put_contents('/home/andrey/log.log', $dumper->dump($ast));
@@ -209,5 +235,16 @@ class DecorateControllerCommand extends Command
 			$oQuestion = new Question($sMessage . "\n", $default);
 		}
 		return $oHelper->ask($this->_input, $this->_output, $oQuestion);
+	}
+	/***
+	 * Append use ... ; string into $this->_aUses variable
+	*/
+	private function _appendUse(\PhpParser\Node\Stmt\Use_ $oStatement) : void
+	{
+		foreach ($oStatement->uses as $oUseUse) {
+			if (isset($oUseUse->name) && isset($oUseUse->name->parts)) {
+				$this->_aUses[] = 'use ' . join('\\', $oUseUse->name->parts) . ';';
+			}
+		}
 	}
 }
