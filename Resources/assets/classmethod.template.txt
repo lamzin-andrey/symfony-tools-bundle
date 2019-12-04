@@ -1,0 +1,5 @@
+
+    public function {{methodname_section}}({{args_section}})
+    {
+        return $this->_oBaseController->{{methodname_section}}({{call_args_section}});
+    }

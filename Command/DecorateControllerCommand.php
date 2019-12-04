@@ -14,7 +14,7 @@ use PhpParser\NodeDumper;
 use PhpParser\ParserFactory;
 
 
-class DecorateControllerCommand extends Command
+class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 {
 	
 	/** @property string $_sYamlConfigFragment Fragment Yaml service configuration */
@@ -41,9 +41,37 @@ class DecorateControllerCommand extends Command
 	/** @property array $_aUses containts 'use ... ; strings  */
 	private $_aUses = [];
 
+	/** @property array $_aPublics containts items like: [
+	 * 	'name' => foo,
+	 * 'arguments' => 'ChoiceQuestion $oCk, string $boo = "ra"',
+	 * 'argumentsForCall' =>'$oCk, $boo'
+	 * 'returnType' : 'string'
+	 * ]
+	 */
+	private $_aPublics = [];
+
+	/** @property string $_sClassName containts original class name  */
+	private $_sClassName = '';
+
+	/** @property string $_extends containts original parent class name  */
+	private $_extends = '';
+
+	/** @property string $_implements containts original implements interfaces  */
+	private $_implements = '';
+
 
 	// the name of the command (the part after "bin/console")
 	protected static $defaultName = 'landlib:decorate-controller';
+
+	public function fooBar($nonf, ChoiceQuestion $oCk, string $boo = 'ra', App\Entity\Users $oUser = null, $k = 0, string $po = "opa") : bool
+	{
+		return  false;
+	}
+
+	public function barFoo($nonf)
+	{
+
+	}
 
 	protected function configure()
 	{
@@ -76,29 +104,30 @@ class DecorateControllerCommand extends Command
 			return;
 		}
 		$this->_parseTargetFile();
-		
-		/*if (!$this->_bFileIsController) {
-			$this->_showError('File "' . $this->_sTargetPhpFile . '" is not containts controller definition.');
+		$nl = "\n";
+		if (!$this->_bFileIsController) {
+			$this->_showError('File ' . $nl . '"' . $this->_sTargetPhpFile . '"' . $nl . ' is not containts controller definition.');
 			return;
 		}
-		
+
 		$this->_generateDestFilename();
+
 		if (file_exists($this->_sDestPhpFile)) {
-			$this->_sDestPhpFile = $this->_showEnterMessage('Destination file name "' . $this->_sTargetPhpFile . '" already exists. Overwrite?');
+			$this->_sDestPhpFile = $this->_showEnterMessage('Destination file name ' . $nl . '"' . $this->_sTargetPhpFile . '" ' . $nl . ' already exists. Overwrite?');
 			return;
 		}
-		
-		
 		
 		$this->_generateDestFileContent();
 		
-		$this->_generateYamlConfigFragment();
+		/*$this->_generateYamlConfigFragment();
 		
 		$this->_showText($this->_sYamlConfigFragment);*/
 		
 	}
 	/**
-	 * Parse php file. Get className, public funcitons list, set _bIsController, set _aUses
+	 * TODO add first arg __construct 'BaseProfileController $oBaseController,'
+	 * and add use target file
+	 * Parse php file. Get className, public funcitons list, set _bFileIsController, set _aUses, set _extends, set _implements
 	*/
 	private function _parseTargetFile()
 	{
@@ -111,50 +140,62 @@ class DecorateControllerCommand extends Command
 			echo "Parse error: {$error->getMessage()}\n";
 		}
 		$sNamespace = '';
-		$sClass = '';//TODO _field
+		$this->_sClassName = $sClass = '';
 
+		$this->_aUses = [];
+		$this->_aPublics = [];
+		$this->_implements = '';
+		$this->_extends = '';
+		$this->_bFileIsController = false;
 		foreach ($ast as $oItem) {
 			if (!$sNamespace && get_class($oItem) == 'PhpParser\Node\Stmt\Namespace_') {
 				$m = $oItem;
 				/** @var \PhpParser\Node\Stmt\Namespace_ $m */
 				$sNamespace = join('\\', $m->name->parts);
-				/*var_dump($m->stmts[13]);
-				die;*/
 				foreach ($m->stmts as $oStatement) {
-					if (!$sClass && get_class($oStatement) == 'PhpParser\Node\Stmt\Use_') {
+					if (get_class($oStatement) == 'PhpParser\Node\Stmt\Use_') {
 						$this->_appendUse($oStatement);
 					}
 					/** @var \PhpParser\Node\Stmt\Class_ $oStatement */
 					if (!$sClass && get_class($oStatement) == 'PhpParser\Node\Stmt\Class_') {
-						$sClass = $sNamespace . '\\' . $oStatement->name;
+						$s = $this->_buildType($oStatement->extends);
+						if ($s) {
+							$this->_extends = ' extends ' . trim($s);
+						}
+
+						if (is_array($oStatement->implements)) {
+							$aBuf = [];
+							foreach ($oStatement->implements as $oImpl) {
+								$aBuf[] = trim($this->_buildType($oImpl));
+							}
+							$this->_implements = ' implements ' . join(', ', $aBuf);
+						}
+						$this->_sClassName = $sClass = $sNamespace . '\\' . $oStatement->name;
+						$this->_bFileIsController = (strpos($oStatement->name, 'Controller') !== false);
+						$this->_grapPublicMethodsList($oStatement->stmts);
 					}
 				}
 			}
-			var_dump($this->_aUses);
-			die;
 		}
-
-
-		$dumper = new NodeDumper();
-		
-		file_put_contents('/home/andrey/log.log', $dumper->dump($ast));
 	}
 	/**
-	 * TODO
 	 * Generate destination file name use _sTargetPhpFile and _sAppRoot values.
 	 * set _sDestPhpFile
 	*/
 	private function _generateDestFilename()
 	{
-		
+		$aInfo = pathinfo($this->_sTargetPhpFile);
+		$this->_sDestPhpFile = $this->_sAppRoot . '/src/Controller/' . $aInfo['basename'];
 	}
 	/**
+	 * TODO stop here
 	 * Use Resources/assets/class.template.txt file and _className, _aMethods fields
 	 * Generate dest file.
 	**/
 	private function _generateDestFileContent()
 	{
-		
+		$sClassTemplate = file_get_contents(__DIR__ . '/../Resources/assets/class.template.txt');
+		die($sClassTemplate);
 	}
 	/**
 	 * Generate Yaml service configuration for file aonfig/services.yaml
@@ -240,11 +281,102 @@ class DecorateControllerCommand extends Command
 	*/
 	private function _appendUse(\PhpParser\Node\Stmt\Use_ $oStatement) : void
 	{
-		$this->_aUses = [];
 		foreach ($oStatement->uses as $oUseUse) {
 			if (isset($oUseUse->name) && isset($oUseUse->name->parts)) {
 				$this->_aUses[] = 'use ' . join('\\', $oUseUse->name->parts) . ';';
 			}
 		}
+	}
+	/***
+	 * Append public methods info into $this->_aPublics
+	 * @param array of \PhpParser\Node\Stmt\Stmt_ClassMethod_ $aClassItems
+	*/
+	private function _grapPublicMethodsList(array $aClassItems) : void
+	{
+		/** @var \PhpParser\Node\Stmt\ClassMethod $oMethodInfo */
+		foreach ($aClassItems as $oMethodInfo) {
+			if (get_class($oMethodInfo)  == 'PhpParser\Node\Stmt\ClassMethod') {
+				//1 - is a public
+				if ($oMethodInfo->flags == 1) {
+					$oParsedParams = $this->_parseMethodArguments($oMethodInfo->params);
+					$aItem = [
+						'name' => $this->_getClassName($oMethodInfo->name),
+						'arguments' => $oParsedParams->headerFormat,
+	 					'argumentsForCall' => $oParsedParams->callFormat,
+						'returnType' => $this->_getReturnTypeString($oMethodInfo->returnType)
+					];
+					$this->_aPublics[] = $aItem;
+
+				}
+			}
+		}
+	}
+	/**
+	 * @param array of PhpParser\Node\Param $aParams
+	 * @return StdClass {headerFormat : 'Foo $foo, $bar = 1', callFormat : '$foo, $bar'}
+	*/
+	private function _parseMethodArguments(array  $aParams) : \StdClass
+	{
+		$o = new \StdClass();
+		$o->headerFormat = '';
+		$o->callFormat = '';
+		$aHeaderItems = [];
+		$aCallItems = [];
+		/** @var \PhpParser\Node\Param $oArg **/
+		foreach ($aParams as $oArg) {
+			$aHeaderItems[] = $this->_buildType($oArg->type) . '$' . $oArg->var->name . $this->_parseArgumentDefaultvalue($oArg->default);
+			$aCallItems[] = '$' . $oArg->var->name;
+		}
+		$o->headerFormat = join(', ', $aHeaderItems);
+		$o->callFormat = join(', ', $aCallItems);
+		return $o;
+	}
+	/**
+	 * @param ?\PhpParser\Node\Name $oType
+	 * @return string with space in tail or empty string
+	 */
+	private function _buildType(/*?\PhpParser\Node\Name*/ $oType) : string
+	{
+		if ($oType && isset($oType->parts)) {
+			$s = join('\\', $oType->parts) . ' ';
+			if (count($oType->parts) > 1) {
+				$s = '\\' . $s;
+			}
+			return $s;
+		}
+		return '';
+	}
+	/**
+	 * @param ?\PhpParser\Node\Name $oType
+	 * @return string with space in tail or empty string
+	 */
+	private function _parseArgumentDefaultValue(/*?\PhpParser\Node\Name*/ $oDefault) : string
+	{
+		if ($oDefault && isset($oDefault->value)) {
+			if (get_class($oDefault) == 'PhpParser\Node\Scalar\String_') {
+				return ' = \'' . $oDefault->value . '\'';
+			}
+			return ' = ' . $oDefault->value;
+		}
+		return '';
+	}
+	/**
+	 * @param \PhpParser\Node\Identifier $oName
+	 * @return string
+	*/
+	private function _getClassName(\PhpParser\Node\Identifier $oName) : string
+	{
+		return $oName->name;
+	}
+	/**
+	 * @param $oReturnType
+	 * @return string for example ' : void' or ' : int' or ''
+	*/
+	private function _getReturnTypeString($oReturnType)
+	{
+		if ($oReturnType && isset($oReturnType->name)) {
+			return ' : ' . $oReturnType->name;
+		}
+		return '';
 	}
 }
