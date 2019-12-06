@@ -9,7 +9,7 @@ class {{classname_section}} extends AbstractController
 
     public function __construct({{constructor_argument_section}})
     {
-        {{copy_args_to_fieldClassSection}}
+{{copy_args_to_fieldClassSection}}
     }
 
 {{publicmethods_section}}

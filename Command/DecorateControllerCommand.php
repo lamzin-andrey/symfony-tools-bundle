@@ -113,8 +113,11 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		$this->_generateDestFilename();
 
 		if (file_exists($this->_sDestPhpFile)) {
-			$this->_sDestPhpFile = $this->_showEnterMessage('Destination file name ' . $nl . '"' . $this->_sTargetPhpFile . '" ' . $nl . ' already exists. Overwrite?');
-			return;
+			$s = $this->_sDestPhpFile;
+			$this->_sDestPhpFile = $this->_showEnterMessage('Destination file name ' . $nl . '"' . $this->_sTargetPhpFile . '" ' . $nl . ' already exists. Overwrite? (Enter "yes" or new path for save exists file)');
+			if ($this->_sDestPhpFile == 'yes') {
+				$this->_sDestPhpFile = $s;
+			}
 		}
 		
 		$this->_generateDestFileContent();
@@ -125,8 +128,6 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		
 	}
 	/**
-	 * TODO add first arg __construct 'BaseProfileController $oBaseController,'
-	 * and add use target file
 	 * Parse php file. Get className, public funcitons list, set _bFileIsController, set _aUses, set _extends, set _implements
 	*/
 	private function _parseTargetFile()
@@ -147,6 +148,7 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		$this->_implements = '';
 		$this->_extends = '';
 		$this->_bFileIsController = false;
+		$shortClassName = '';
 		foreach ($ast as $oItem) {
 			if (!$sNamespace && get_class($oItem) == 'PhpParser\Node\Stmt\Namespace_') {
 				$m = $oItem;
@@ -170,13 +172,16 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 							}
 							$this->_implements = ' implements ' . join(', ', $aBuf);
 						}
+						$shortClassName = $oStatement->name;
 						$this->_sClassName = $sClass = $sNamespace . '\\' . $oStatement->name;
 						$this->_bFileIsController = (strpos($oStatement->name, 'Controller') !== false);
-						$this->_grapPublicMethodsList($oStatement->stmts);
+						$this->_grapPublicMethodsList($oStatement->stmts, $oStatement->name, $sClass);
 					}
 				}
 			}
 		}
+		$this->_aUses[] = 'use ' . $this->_sClassName . ' as Base' . $shortClassName . ';';
+		$this->_aUses[] = 'use Symfony\Component\DependencyInjection\ContainerInterface;';
 	}
 	/**
 	 * Generate destination file name use _sTargetPhpFile and _sAppRoot values.
@@ -185,6 +190,13 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 	private function _generateDestFilename()
 	{
 		$aInfo = pathinfo($this->_sTargetPhpFile);
+		$sFolder = $this->_sAppRoot . '/src/Controller';
+		if (!file_exists($sFolder)) {
+			@mkdir($sFolder);
+		}
+		if (!file_exists($sFolder) || !is_dir($sFolder)) {
+			throw new \Exception('Unable create folder "' . $sFolder . '"' . "\n");
+		}
 		$this->_sDestPhpFile = $this->_sAppRoot . '/src/Controller/' . $aInfo['basename'];
 	}
 	/**
@@ -194,8 +206,53 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 	**/
 	private function _generateDestFileContent()
 	{
+		//replace use section
 		$sClassTemplate = file_get_contents(__DIR__ . '/../Resources/assets/class.template.txt');
-		die($sClassTemplate);
+		$sClassMethodTemplate = file_get_contents(__DIR__ . '/../Resources/assets/classmethod.template.txt');
+		$s = str_replace('{{uses_section}}', join("\n", $this->_aUses), $sClassTemplate);
+
+		//replace classname
+		$aClassName = explode('\\', $this->_sClassName);
+		$sClassName = $aClassName[count($aClassName) - 1];
+		$s = str_replace('{{classname_section}}', $sClassName, $s);
+
+		//replace constructor arguments and body
+		$sConstructArgs = '';
+		$sBody = '';
+		$sMethods = '';
+		$aMethods = [];
+		foreach ($this->_aPublics as $aMethodInfo) {
+			if ($aMethodInfo['name'] == '__construct') {
+				$sConstructArgs = $aMethodInfo['arguments'];
+				$sBody = $this->_createConstructBody($aMethodInfo['argumentsForCall']);
+			} else {
+				$sm = str_replace('{{methodname_section}}', $aMethodInfo['name'], $sClassMethodTemplate);
+				$sm = str_replace('{{args_section}}', $aMethodInfo['arguments'], $sm);
+				$sm = str_replace('{{call_args_section}}', $aMethodInfo['argumentsForCall'], $sm);
+				$aMethods[] = $sm;
+			}
+		}
+		$s = str_replace('{{constructor_argument_section}}', $sConstructArgs, $s);
+		$s = str_replace('{{copy_args_to_fieldClassSection}}', $sBody, $s);
+
+		//replace publicmethods_section
+		$sMethods = join("\n", $aMethods);
+		$s = str_replace('{{publicmethods_section}}', $sMethods, $s);
+		file_put_contents($this->_sDestPhpFile, $s);
+	}
+	/**
+	 * @see _generateDestFileContent
+	 * @param array $argumentsForCall @see $this->>_aPublics item format
+	 * @return string
+	*/
+	private function _createConstructBody(string $sArgumentsForCall) : string
+	{
+		$argumentsForCall = explode(', ', $sArgumentsForCall);
+		foreach ($argumentsForCall as $s) {
+			$sKey = str_replace('$', '', $s);
+			$a[] = "\t\t\$this->_{$sKey} = {$s};";
+		}
+		return join("\n", $a);
 	}
 	/**
 	 * Generate Yaml service configuration for file aonfig/services.yaml
@@ -290,17 +347,23 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 	/***
 	 * Append public methods info into $this->_aPublics
 	 * @param array of \PhpParser\Node\Stmt\Stmt_ClassMethod_ $aClassItems
+	 * @param string $shortClassName
+	 * @param string $sLongClassName
 	*/
-	private function _grapPublicMethodsList(array $aClassItems) : void
+	private function _grapPublicMethodsList(array $aClassItems, string $shortClassName, string $sLongClassName) : void
 	{
 		/** @var \PhpParser\Node\Stmt\ClassMethod $oMethodInfo */
 		foreach ($aClassItems as $oMethodInfo) {
 			if (get_class($oMethodInfo)  == 'PhpParser\Node\Stmt\ClassMethod') {
 				//1 - is a public
 				if ($oMethodInfo->flags == 1) {
+					$sMethodName = $this->_getClassName($oMethodInfo->name);
+					if ($sMethodName == '__construct') {
+						$oMethodInfo->params = $this->_addConstructorArguments($oMethodInfo->params, $shortClassName);
+					}
 					$oParsedParams = $this->_parseMethodArguments($oMethodInfo->params);
 					$aItem = [
-						'name' => $this->_getClassName($oMethodInfo->name),
+						'name' => $sMethodName,
 						'arguments' => $oParsedParams->headerFormat,
 	 					'argumentsForCall' => $oParsedParams->callFormat,
 						'returnType' => $this->_getReturnTypeString($oMethodInfo->returnType)
@@ -310,6 +373,31 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 				}
 			}
 		}
+	}
+	/**
+	 * add first arg  'BaseXXXController $oBaseController,'
+	 * @param array
+	 * @param string
+	 * @return array
+	*/
+	private function _addConstructorArguments(array $aParams, string $shortClassName) : array
+	{
+		$oArg = $this->_createArgumentObject('oBaseController', ['Base' . $shortClassName]);
+		array_unshift($aParams, $oArg);
+		$aParams[] = $this->_createArgumentObject('oContainer', ['ContainerInterface']);
+		return $aParams;
+	}
+
+	private function _createArgumentObject(string $sName, array $aType) : \StdClass
+	{
+		$oArg = new \StdClass();
+		$oArg->type = new \StdClass();
+		$oArg->type->parts = $aType;
+		$oArg->var = new \StdClass();
+		$oArg->var->name = $sName;
+		$oArg->default = null;
+		$oArg->return = null;
+		return $oArg;
 	}
 	/**
 	 * @param array of PhpParser\Node\Param $aParams
