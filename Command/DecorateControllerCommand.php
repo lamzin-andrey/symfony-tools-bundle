@@ -122,10 +122,22 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		
 		$this->_generateDestFileContent();
 		
-		/*$this->_generateYamlConfigFragment();
+		$this->_generateYamlConfigFragment();
 		
-		$this->_showText($this->_sYamlConfigFragment);*/
+		/*$this->_showText($this->_sYamlConfigFragment);*/
 		
+	}
+	/**
+	 * Generate Yaml service configuration for file config/services.yaml
+	 */
+	private function _generateYamlConfigFragment()
+	{
+		//TODO search config file by class full name
+		echo($this->_sClassName . "\n");
+		die($this->_sAppRoot);
+		//if is xml parse as xml
+		//if is yaml parse as yaml
+		//generate configuration
 	}
 	/**
 	 * Parse php file. Get className, public funcitons list, set _bFileIsController, set _aUses, set _extends, set _implements
@@ -182,6 +194,7 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		}
 		$this->_aUses[] = 'use ' . $this->_sClassName . ' as Base' . $shortClassName . ';';
 		$this->_aUses[] = 'use Symfony\Component\DependencyInjection\ContainerInterface;';
+		$this->_aUses[] = 'use \Symfony\Bundle\FrameworkBundle\Controller\AbstractController;';
 	}
 	/**
 	 * Generate destination file name use _sTargetPhpFile and _sAppRoot values.
@@ -200,7 +213,6 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		$this->_sDestPhpFile = $this->_sAppRoot . '/src/Controller/' . $aInfo['basename'];
 	}
 	/**
-	 * TODO stop here
 	 * Use Resources/assets/class.template.txt file and _className, _aMethods fields
 	 * Generate dest file.
 	**/
@@ -238,7 +250,7 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		//replace publicmethods_section
 		$sMethods = join("\n", $aMethods);
 		$s = str_replace('{{publicmethods_section}}', $sMethods, $s);
-		file_put_contents($this->_sDestPhpFile, $s);
+		//file_put_contents($this->_sDestPhpFile, $s);
 	}
 	/**
 	 * @see _generateDestFileContent
@@ -253,13 +265,6 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 			$a[] = "\t\t\$this->_{$sKey} = {$s};";
 		}
 		return join("\n", $a);
-	}
-	/**
-	 * Generate Yaml service configuration for file aonfig/services.yaml
-	*/
-	private function _generateYamlConfigFragment()
-	{
-		
 	}
 	/**
 	 * Output string in console
@@ -348,9 +353,8 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 	 * Append public methods info into $this->_aPublics
 	 * @param array of \PhpParser\Node\Stmt\Stmt_ClassMethod_ $aClassItems
 	 * @param string $shortClassName
-	 * @param string $sLongClassName
 	*/
-	private function _grapPublicMethodsList(array $aClassItems, string $shortClassName, string $sLongClassName) : void
+	private function _grapPublicMethodsList(array $aClassItems, string $shortClassName) : void
 	{
 		/** @var \PhpParser\Node\Stmt\ClassMethod $oMethodInfo */
 		foreach ($aClassItems as $oMethodInfo) {
@@ -375,9 +379,9 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		}
 	}
 	/**
-	 * add first arg  'BaseXXXController $oBaseController,'
-	 * @param array
-	 * @param string
+	 * add first arg  'BaseXXXController $oBaseController,' and last 'ContainerInterface : oContainer'
+	 * @param array $aParams
+	 * @param string $shortClassName
 	 * @return array
 	*/
 	private function _addConstructorArguments(array $aParams, string $shortClassName) : array
@@ -387,7 +391,12 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		$aParams[] = $this->_createArgumentObject('oContainer', ['ContainerInterface']);
 		return $aParams;
 	}
-
+	/**
+	 *  Create object compatible wuth \PhpParser\Node\Param
+	 * @param string $sName
+	 * @param array $aType
+	 * @return StdClass {type: {}, var: {}, default: null, return : null}
+	 */
 	private function _createArgumentObject(string $sName, array $aType) : \StdClass
 	{
 		$oArg = new \StdClass();

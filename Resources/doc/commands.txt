@@ -1,1 +1,10 @@
 php bin/console landlib:decorate-controller
+
+похоже на правду
+grep --include=\*.{xml,yaml}  -rnw '/opt/lampp/htdocs/mh.loc/symapp/hellos34/' -e 'FOS\\UserBundle\\Controller\\GroupController'
+
+out:
+/opt/lampp/htdocs/mh.loc/symapp/hellos34/vendor/friendsofsymfony/user-bundle/Resources/config/group.xml:20:        <service id="fos_user.group.controller" class="FOS\UserBundle\Controller\GroupController" public="true">
+
+
+var/cache/ - не надо
