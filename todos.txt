@@ -1,3 +1,7 @@
+Decorate Controller Tool
+ - need WindowsFileFinder.php
+ - need docs
+
 FileUploaderService depends from LiipImagineBundle, it need add in composer.json file
 Doc readme.md.
 
