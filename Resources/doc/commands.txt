@@ -8,3 +8,27 @@ out:
 
 
 var/cache/ - не надо
+
+для windows
+
+
+for /R F:\tmp\hellos34 %f in (.) do FIND %f "FOS\UserBundle\Controller\GroupController"
+
+Пример вывода
+
+Не найден файл: F:\tmp\hellos34\vendor\friendsofsymfony\user-bundle\Resources\.\
+*.xml
+
+---------- F:\TMP\HELLOS34\VENDOR\FRIENDSOFSYMFONY\USER-BUNDLE\RESOURCES\CONFIG\
+.\CHANGE_PASSWORD.XML
+
+---------- F:\TMP\HELLOS34\VENDOR\FRIENDSOFSYMFONY\USER-BUNDLE\RESOURCES\CONFIG\
+.\COMMANDS.XML
+
+---------- F:\TMP\HELLOS34\VENDOR\FRIENDSOFSYMFONY\USER-BUNDLE\RESOURCES\CONFIG\
+.\GROUP.XML
+        <service id="fos_user.group.controller" class="FOS\UserBundle\Controller
+\GroupController" public="true">
+
+---------- F:\TMP\HELLOS34\VENDOR\FRIENDSOFSYMFONY\USER-BUNDLE\RESOURCES\CONFIG\
+.\LISTENERS.XML

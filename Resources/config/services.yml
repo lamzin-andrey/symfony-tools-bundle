@@ -2,4 +2,5 @@ services:
     Landlib\SymfonyToolsBundle\Service\FileUploaderService:
         arguments: ["@service_container"]
         class: Landlib\SymfonyToolsBundle\Service\FileUploaderService
+        #class: FOS\UserBundle\Controller\GroupController
     

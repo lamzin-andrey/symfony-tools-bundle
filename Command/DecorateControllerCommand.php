@@ -13,6 +13,8 @@ use PhpParser\Error;
 use PhpParser\NodeDumper;
 use PhpParser\ParserFactory;
 
+use Landlib\SymfonyToolsBundle\Util\ConfigurationParser;
+
 
 class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 {
@@ -133,7 +135,10 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 	private function _generateYamlConfigFragment()
 	{
 		//TODO search config file by class full name
-		echo($this->_sClassName . "\n");
+
+		$oConfigurationParser = new ConfigurationParser();
+		$aList = $oConfigurationParser->getServiceArgumentAliasesList($this->_sClassName, $this->_sAppRoot);
+		//echo($this->_sClassName . "\n");
 		die($this->_sAppRoot);
 		//if is xml parse as xml
 		//if is yaml parse as yaml
