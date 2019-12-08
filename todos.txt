@@ -1,4 +1,5 @@
 Decorate Controller Tool
+ - need skip files with var/cache/ in path (for linux too!)
  - need WindowsFileFinder.php
  - need docs
 
