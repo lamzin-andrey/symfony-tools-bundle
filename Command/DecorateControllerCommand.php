@@ -16,7 +16,7 @@ use PhpParser\ParserFactory;
 use Landlib\SymfonyToolsBundle\Util\ConfigurationParser;
 
 
-class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
+class DecorateControllerCommand extends Command
 {
 	
 	/** @property string $_sYamlConfigFragment Fragment Yaml service configuration */
@@ -121,28 +121,39 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 				$this->_sDestPhpFile = $s;
 			}
 		}
-		
 		$this->_generateDestFileContent();
-		
 		$this->_generateYamlConfigFragment();
-		
-		/*$this->_showText($this->_sYamlConfigFragment);*/
-		
+		$separator = "==================\n";
+		$this->_showText($separator);
+		$this->_showText($this->_sYamlConfigFragment);
+		$this->_showText($separator);
+		$this->_showText("Remember to change the name of the controller in the routes or annotation file.");
 	}
 	/**
 	 * Generate Yaml service configuration for file config/services.yaml
 	 */
 	private function _generateYamlConfigFragment()
 	{
-		//TODO search config file by class full name
-
 		$oConfigurationParser = new ConfigurationParser();
 		$aList = $oConfigurationParser->getServiceArgumentAliasesList($this->_sClassName, $this->_sAppRoot);
-		//echo($this->_sClassName . "\n");
-		die($this->_sAppRoot);
-		//if is xml parse as xml
-		//if is yaml parse as yaml
-		//generate configuration
+		$aList[] = '@service_container';
+		$sConfigTemplate = file_get_contents(__DIR__ . '/../Resources/assets/configservice.template.txt');
+		$sConfigArgTemplate = file_get_contents(__DIR__ . '/../Resources/assets/configserviceargument.template.txt');
+
+		$a = explode('\\', $this->_sClassName);
+		$selfAlias = 'App\\Controller\\' . $a[count($a) - 1];
+		$s = str_replace('{{self_alias}}', $selfAlias, $sConfigTemplate);
+		$s = str_replace('{{target_alias}}', $oConfigurationParser->getServiceAlias($this->_sClassName, $this->_sAppRoot), $s);
+		$sa = '';
+		if (count($aList)) {
+			$a = [];
+			foreach ($aList as $sAlias) {
+				$a[] = str_replace('{{arg}}', $sAlias, $sConfigArgTemplate);
+			}
+			$sa = join("\n", $a);
+		}
+		$s = str_replace('{{arguments}}', $sa, $s);
+		$this->_sYamlConfigFragment = $s;
 	}
 	/**
 	 * Parse php file. Get className, public funcitons list, set _bFileIsController, set _aUses, set _extends, set _implements
@@ -150,7 +161,6 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 	private function _parseTargetFile()
 	{
 		$s = file_get_contents($this->_sTargetPhpFile);
-		
 		$parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
 		try {
 			$ast = $parser->parse($s);
@@ -255,7 +265,7 @@ class DecorateControllerCommand extends Command implements IFooBar, IBarFoo
 		//replace publicmethods_section
 		$sMethods = join("\n", $aMethods);
 		$s = str_replace('{{publicmethods_section}}', $sMethods, $s);
-		//file_put_contents($this->_sDestPhpFile, $s);
+		file_put_contents($this->_sDestPhpFile, $s);
 	}
 	/**
 	 * @see _generateDestFileContent
