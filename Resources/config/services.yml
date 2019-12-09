@@ -3,6 +3,5 @@ services:
         arguments: ["@service_container"]
         class: Landlib\SymfonyToolsBundle\Service\FileUploaderService
 
-        #class: FOS\UserBundle\Controller\GroupController
+        #class: FOS\UserBundle\Controller\ChangePasswordController
         #arguments: ["@service_container", "@doctrine"]
-    

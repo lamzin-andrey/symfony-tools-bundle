@@ -12,7 +12,7 @@ var/cache/ - не надо
 для windows
 
 
-for /R F:\tmp\hellos34 %f in (.) do FIND %f "FOS\UserBundle\Controller\GroupController"
+for /R D:\php-p\gazelmesymfony34\vendor\landlib\symfonytoolsbundle\Resources\config %f in (.) do FIND /i "FOS\UserBundle\Controller\ChangePasswordController" %f\*.yml
 
 Пример вывода
 

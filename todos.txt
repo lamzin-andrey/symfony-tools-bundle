@@ -1,6 +1,4 @@
 Decorate Controller Tool
- - need skip files with var/cache/ in path (for linux too!)
- - need WindowsFileFinder.php
  - need docs
 
 FileUploaderService depends from LiipImagineBundle, it need add in composer.json file

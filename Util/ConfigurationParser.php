@@ -1,7 +1,7 @@
 <?php
 namespace Landlib\SymfonyToolsBundle\Util;
 
-//Landlib\SymfonyToolsBundle\Util\WindowsFileFinder;
+use Landlib\SymfonyToolsBundle\Util\WindowsFileFinder;
 use Landlib\SymfonyToolsBundle\Util\LinuxFileFinder;
 use Symfony\Component\Yaml\Parser AS YParser;
 
@@ -16,22 +16,47 @@ class ConfigurationParser {
 	/** @param array $_arguments */
 	private $_arguments = [];
 	
+	/** @param string $_sFindBinary path to system command find.exe in os windows (git for windows also containts find.exe and it may be conflict)*/
+	private $_sFindBinary = '';
+	
 	/**
 	 * @param string $sClassName full class name  for example 'FOS\UserBundle\Controller\GroupController'
 	 * @param string $sTargetDirectory configuration files will search in this directory
+	 * @param string $sTargetPriorityDirectory
 	 * @return array of string service arguments aliases.
 	*/
-	public function getServiceArgumentAliasesList(string $sClassName, string $sTargetDirectory)
+	public function getServiceArgumentAliasesList(string $sClassName, string $sTargetDirectory, string $sTargetPriorityDirectory)
 	{
+		// . "\\vendor\\friendsofsymfony"
 		$this->_sClassName = $sClassName;
+		$sTailVendor = '\\vendor';
+		$sTailSrc = '\\src';
 		$oFileFinder = new LinuxFileFinder();
 		if ($this->_isEnvWindows()) {
 			$oFileFinder = new WindowsFileFinder();
+			$oFileFinder->setFindCmd($this->_sFindBinary);
+			$sTailVendor = '/vendor';
+			$sTailSrc = '/src';
 		}
-		$aFilenames = $oFileFinder->search($sClassName, $sTargetDirectory);//TODO for Windows
-		//Find file with <service id="ALIAS" class="$sClassName"> ... <argument type="service" id="ALIAS_X" > ...
-		//or analogy yaml
-		$sFilename = $this->_getServiceDefinitionFile($aFilenames);
+		echo "Scanning priority directory...\n";
+		$aFilenamesVendor = $oFileFinder->search($sClassName, $sTargetPriorityDirectory);
+		$sFilename = $this->_getServiceDefinitionFile($aFilenamesVendor);
+		
+		if (!$sFilename) {
+			echo "Scanning vendor directory...\n";
+			$aFilenamesVendor = $oFileFinder->search($sClassName, $sTargetDirectory . $sTailVendor);
+			$sFilename = $this->_getServiceDefinitionFile($aFilenamesVendor);
+			$aFilenamesSrc = [];
+			if (!$sFilename) {
+				echo "Scanning src directory...\n";
+				$aFilenamesSrc = $oFileFinder->search($sClassName, $sTargetDirectory . $sTailSrc);
+			}
+			$aFilenames = array_merge($aFilenamesVendor, $aFilenamesSrc);
+			
+			//Find file with <service id="ALIAS" class="$sClassName"> ... <argument type="service" id="ALIAS_X" > ...
+			//or analogy yaml
+			$sFilename = $this->_getServiceDefinitionFile($aFilenames);
+		}
 		if ($sFilename) {
 			if ($this->_isXml($sFilename)) {
 				return $this->_buildServiceAliasListFromXmlFile($sFilename);
@@ -45,15 +70,16 @@ class ConfigurationParser {
 	/**
 	 * @param string $sClassName full class name  for example 'FOS\UserBundle\Controller\GroupController'
 	 * @param string $sTargetDirectory configuration files will search in this directory
+	 * @param string $sTargetPriorityDirectory
 	 * @return string service alias.
 	 */
-	public function getServiceAlias(string $sClassName, string $sTargetDirectory)
+	public function getServiceAlias(string $sClassName, string $sTargetDirectory, string $sTargetPriorityDirectory)
 	{
 		if ($this->_sAlias && $this->_sClassName == $sClassName) {
 			return $this->_sAlias;
 		}
 		$this->_sAlias = '';
-		$this->getServiceArgumentAliasesList($sClassName, $sTargetDirectory);
+		$this->getServiceArgumentAliasesList($sClassName, $sTargetDirectory, $sTargetPriorityDirectory);
 		return $this->_sAlias;
 	}
 	private function _buildServiceAliasListFromXmlFile(string $sFilename) : array
@@ -88,6 +114,9 @@ class ConfigurationParser {
 		$bServiceDefinitionIsFound = false;
 		foreach ($aFilenames as $oSearchResult) {
 			$sPath = $oSearchResult->path;
+			if (strpos(strtolower($sPath), 'var/cache') !== false) {
+				continue;
+			}
 			if ($this->_isXml($sPath)) {
 				$oDoc = new \DOMDocument();
 				$oDoc->validateOnParse = false;
@@ -129,7 +158,7 @@ class ConfigurationParser {
 	{
 		$aPathinfo = pathinfo($sFilename);
 		$sExt = ($aPathinfo['extension'] ?? '');
-		if ($sExt == 'xml') {
+		if (strtolower($sExt) == 'xml') {
 			return true;
 		}
 		return false;
@@ -138,6 +167,7 @@ class ConfigurationParser {
 	{
 		$aPathinfo = pathinfo($sFilename);
 		$sExt = ($aPathinfo['extension'] ?? '');
+		$sExt = strtolower($sExt);
 		if ($sExt == 'yml' || $sExt == 'yaml') {
 			return true;
 		}
@@ -149,10 +179,22 @@ class ConfigurationParser {
 	*/
 	private function _isEnvWindows() : bool
 	{
+		$this->_sFindBinary = '';
 		$s = __DIR__;
 		if (strpos($s, '/') === 0) {
 			return false;
 		}
+		$this->_sFindBinary = '%SystemRoot%\Windows32\find.exe';
+		exec('Set Pro', $aOut);
+		
+		foreach ($aOut as $sLine) {
+			$a = explode('=', $sLine);
+			if (strpos($a[1], '64') !== false) {
+				$this->_sFindBinary = '%SystemRoot%\SysWOW64\find.exe';
+			}
+			break;
+		}
+		echo "In Windows it may take several minutes...\n";
 		return true;
 	}
 }

@@ -123,8 +123,8 @@ class DecorateControllerCommand extends Command
 		}
 		$this->_generateDestFileContent();
 		$this->_generateYamlConfigFragment();
-		$separator = "==================\n";
-		$this->_showText($separator);
+		$separator = "\n==================\n";
+		$this->_showText("Add in your configuration config/services.yaml: \n" . $separator);
 		$this->_showText($this->_sYamlConfigFragment);
 		$this->_showText($separator);
 		$this->_showText("Remember to change the name of the controller in the routes or annotation file.");
@@ -135,7 +135,17 @@ class DecorateControllerCommand extends Command
 	private function _generateYamlConfigFragment()
 	{
 		$oConfigurationParser = new ConfigurationParser();
-		$aList = $oConfigurationParser->getServiceArgumentAliasesList($this->_sClassName, $this->_sAppRoot);
+		$sPriorityPath = '';
+		$a = explode('vendor', $this->_sTargetPhpFile);
+		if (count($a) > 0) {
+			$sep = '\\';
+			if ($this->_sTargetPhpFile[0] == '/') {
+				$sep = '/';
+			}
+			$aNames = explode($sep, $a[1]);
+			$sPriorityPath = $this->_sAppRoot . $sep . 'vendor' . $sep . $aNames[1];
+		}
+		$aList = $oConfigurationParser->getServiceArgumentAliasesList($this->_sClassName, $this->_sAppRoot, $sPriorityPath);
 		$aList[] = '@service_container';
 		$sConfigTemplate = file_get_contents(__DIR__ . '/../Resources/assets/configservice.template.txt');
 		$sConfigArgTemplate = file_get_contents(__DIR__ . '/../Resources/assets/configserviceargument.template.txt');
@@ -143,7 +153,7 @@ class DecorateControllerCommand extends Command
 		$a = explode('\\', $this->_sClassName);
 		$selfAlias = 'App\\Controller\\' . $a[count($a) - 1];
 		$s = str_replace('{{self_alias}}', $selfAlias, $sConfigTemplate);
-		$s = str_replace('{{target_alias}}', $oConfigurationParser->getServiceAlias($this->_sClassName, $this->_sAppRoot), $s);
+		$s = str_replace('{{target_alias}}', $oConfigurationParser->getServiceAlias($this->_sClassName, $this->_sAppRoot, $sPriorityPath), $s);
 		$sa = '';
 		if (count($aList)) {
 			$a = [];
