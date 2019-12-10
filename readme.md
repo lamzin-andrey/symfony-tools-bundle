@@ -18,6 +18,7 @@
 [Commands](#commands)
 
 [landlib:decorate-controller](#landlibdecorate-controller)
+
 [landlib:service-alias](#landlibservice-alias)
 
 
@@ -392,6 +393,7 @@ fos_user.resetting.controller
 [Commands](#commands-1)
 
 [landlib:decorate-controller](#landlibdecorate-controller-1)
+
 [landlib:service-alias](#landlibservice-alias-1)
 
 
