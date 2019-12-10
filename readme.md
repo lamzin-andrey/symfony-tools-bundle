@@ -247,7 +247,7 @@ After request command wil generate file
 
 `/home/user/sym3.4project/src/Controller/ResettingController.php`
 
-**If file already exists, it will rewrite or remove! No copies are saved.
+**If file already exists, it will rewrite or remove! No copies are saved.**
 
 и выведет фрагмент yaml конфигурации:
 
@@ -277,7 +277,7 @@ Add in your configuration config/services.yaml:
 Remember to change the name of the controller in the routes or annotation file.
 ```
 
-**Pay attention to the last line of output, the route (or routes) for those actions that you want to reload must be manually adjusted in the route configuration! (Because the team cannot know which of the controller actions you want to overload).
+**Pay attention to the last line of output, the route (or routes) for those actions that you want to reload must be manually adjusted in the route configuration! (Because the team cannot know which of the controller actions you want to overload).**
 
 ##### Troubles
 
@@ -541,7 +541,7 @@ php bin/console landlib:decorate-controller
 
 `/home/user/sym3.4project/src/Controller/ResettingController.php`
 
-**Если файл уже существует, он будет перезаписан или удалён! Копии не сохраняется.
+**Если файл уже существует, он будет перезаписан или удалён! Копии не сохраняется.**
 
 и выведет фрагмент yaml конфигурации:
 
@@ -569,7 +569,7 @@ Add in your configuration config/services.yaml:
 Remember to change the name of the controller in the routes or annotation file.
 ```
 
-**Обратите внимание, на последнюю строку вывода, маршрут(или маршруты) для тех actions, которые вы хотите перегрузить необходимо корректировать в конфигурации маршрутов вручную! (Потому что команда не может знать, какие из actions контроллера вы хотите перегрузить).
+**Обратите внимание, на последнюю строку вывода, маршрут(или маршруты) для тех actions, которые вы хотите перегрузить необходимо корректировать в конфигурации маршрутов вручную! (Потому что команда не может знать, какие из actions контроллера вы хотите перегрузить).**
 
 ##### Проблемы
 
