@@ -78,12 +78,9 @@ class DecorateControllerCommand extends Command
 
 	protected function configure()
 	{
-		//$this->addArgument('testing', InputArgument::REQUIRED, 'Why?');
 		$this->setDescription('Decorate-controller will decorated target  controller from third-party bundle')
 			->addArgument('target', InputArgument::OPTIONAL, 'Path to controller which need decorate')
-			->setHelp('It help');
-		
-		
+			->setHelp('See https://github.com/lamzin-andrey/symfony-tools-bundle');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
