@@ -15,12 +15,6 @@
 
 [FileUploaderService](#fileuploaderservice)
 
-[Example settings](#example-settings)
-
-[Example save](#example-save)
-
-[Example liipimaginebundle configuration](#example-liipimaginebundle-configuration)
-
 [Commands](#commands)
 
 [landlib:decorate-controller](#landlibdecorate-controller)
@@ -48,6 +42,13 @@ Provided `upload` method.
 Support LiipImagineBundle filters for resize, scaling upoloaded image file.
 
 Tested in the Symfony 3.4 project.
+
+[Example settings](#example-settings)
+
+[Example save](#example-save)
+
+[Example liipimaginebundle configuration](#example-liipimaginebundle-configuration)
+
 
 ##### Example settings
 
@@ -335,12 +336,6 @@ or append yaml configuration fragment to your services.yaml.
 
 [FileUploaderService](#fileuploaderservice-1)
 
-[Example settings](#example-settings-1)
-
-[Example save](#example-save-1)
-
-[Пример конфигурации LiipImagineBundle](#пример-конфигурации-liipimaginebundle)
-
 [Commands](#commands-1)
 
 [landlib:decorate-controller](#landlibdecorate-controller-1)
@@ -368,6 +363,12 @@ FileUploader Service нужен для максимально простой р�
 Поддержка фильтров LiipImagineBundle для изменения размера, масштабирования загруженного файла изображения.
 
 Проверен в проекте Symfony 3.4.
+
+[Example settings](#example-settings-1)
+
+[Example save](#example-save-1)
+
+[Пример конфигурации LiipImagineBundle](#пример-конфигурации-liipimaginebundle)
 
 ##### Example settings
 
