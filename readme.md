@@ -711,9 +711,9 @@ Remember to change the name of the controller in the routes or annotation file.
 
 #### landlib:service-alias
 
-[Что это](#что-это-3)
+[Что это](#что-это-2)
 
-[Использование](#использование-2)
+[Использование](#использование-1)
 
 ##### Что это
 
