@@ -1,7 +1,7 @@
 {
     "name": "landlib/symfonytoolsbundle",
     "version": "1.2.1",
-    "keywords": ["Symfony 3.4 Decorate Controller Tool"],
+    "keywords": ["Symfony 3.4 Decorate Controller Tool", "Image uploader with imageresize"],
     "homepage": "https://github.com/lamzin-andrey/symfony-tools-bundle",
     "description": "Symfony 3.4 Decorate Controller Tool generate service configuration for override third-party bundles controller. FileUploader Service for most simple configure FileType input with FormBuilderInterface.",
     "license": "MIT",
