@@ -29,14 +29,14 @@ class ConfigurationParser {
 	{
 		// . "\\vendor\\friendsofsymfony"
 		$this->_sClassName = $sClassName;
-		$sTailVendor = '\\vendor';
-		$sTailSrc = '\\src';
+		$sTailVendor = '/vendor';
+		$sTailSrc = '/src';
 		$oFileFinder = new LinuxFileFinder();
 		if ($this->_isEnvWindows()) {
 			$oFileFinder = new WindowsFileFinder();
 			$oFileFinder->setFindCmd($this->_sFindBinary);
-			$sTailVendor = '/vendor';
-			$sTailSrc = '/src';
+			$sTailVendor = '\\vendor';
+			$sTailSrc = '\\src';
 		}
 		echo "Scanning priority directory...\n";
 		$aFilenamesVendor = $oFileFinder->search($sClassName, $sTargetPriorityDirectory);
@@ -96,7 +96,7 @@ class ConfigurationParser {
 		for ($i = 0; $i < $arguments->length; $i++) {
 			$oNode = $arguments->item($i);
 			if ($oNode->hasAttribute('type') && $oNode->hasAttribute('id')) {
-				if ($oNode->getAttribute('type') == 'service') {
+				if ($oNode->getAttribute('type') == 'service' && $oNode->parentNode->tagName == 'service') {
 					$aResult[] = '@' . $oNode->getAttribute('id');
 				}
 			} else if (!$oNode->hasAttribute('type') ){
@@ -184,13 +184,13 @@ class ConfigurationParser {
 		if (strpos($s, '/') === 0) {
 			return false;
 		}
-		$this->_sFindBinary = '%SystemRoot%\Windows32\find.exe';
+		$this->_sFindBinary = '%SystemRoot%\System32\findstr.exe';
 		exec('Set Pro', $aOut);
 		
 		foreach ($aOut as $sLine) {
 			$a = explode('=', $sLine);
 			if (strpos($a[1], '64') !== false) {
-				$this->_sFindBinary = '%SystemRoot%\SysWOW64\find.exe';
+				$this->_sFindBinary = '%SystemRoot%\SysWOW64\findstr.exe';
 			}
 			break;
 		}

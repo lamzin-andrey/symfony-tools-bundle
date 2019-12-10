@@ -30,7 +30,7 @@ class LinuxFileFinder implements IFileFinder {
 				$oItem = new \StdClass();
 				$oItem->path = trim($a[0]);
 				unset($a[0], $a[1]);
-				$oItem->content = join(':', $a);
+				$oItem->content = trim(join(':', $a));
 				$aResult[] = $oItem;
 			}
 		}

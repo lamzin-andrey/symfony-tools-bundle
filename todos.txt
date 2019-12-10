@@ -3,6 +3,7 @@ Decorate Controller Tool
 
 FileUploaderService depends from LiipImagineBundle, it need add in composer.json file
 Doc readme.md.
+ - require test  FileUploaderService is work
 
 
 Symfony 3.4 Decorate Controller Tool generate service configuration for override third-party bundles controller.

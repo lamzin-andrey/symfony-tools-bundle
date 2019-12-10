@@ -207,7 +207,89 @@ liip_imagine_filter:
         path: .+
 ```
 
+### Commands
 
+#### landlib:decorate-controller
+
+##### About
+
+When I decided to decorate the FOSUserBundle ResettingController controller, it turned out to be difficult to write a new service registration configuration. Besides the fact that I have to find the aliases of all the services that the original controller accepts, I have to write a class, almost all methods of which simply call the methods of the decorated controller (it's boring!).
+
+We want to use good ready-made solutions as much as possible, which means that the operation of decorating the controller from a third-party bundle will be routine.
+
+Because I created command:
+
+```bash
+php bin/console landlib:decorate-controller
+```
+
+which creates a "blank" for the controller class that decorates the desired service and displays in stdout the yaml fragment of the configuration of the new service. You just have to copy this configuration to your
+
+`config/services.yaml`.
+
+Generated controller already containts wrappers for all methods of original controller.
+
+##### Install
+
+`composer require landlib/symfonytoolsbundle`
+
+##### Usage
+
+For example decorate `FOS\UserBundle\Controller\ResettingController`
+
+`php bin/console landlib:decorate-controller`
+
+Command will request enter the path to override controller. Need enter absolute path, for example
+
+`/home/user/sym3.4project/vendor/friendsofsymfony/user-bundle/Controller/ResettingController.php`
+
+After request command wil generate file
+
+`/home/user/sym3.4project/src/Controller/ResettingController.php`
+
+**If file already exists, it will rewrite or remove! No copies are saved.
+
+и выведет фрагмент yaml конфигурации:
+
+and will output the yaml fragment of the configuration:
+
+```
+Add in your configuration config/services.yaml: 
+==================
+
+
+    App\Controller\ResettingController:
+        decorates: fos_user.resetting.controller
+        arguments:
+            - '@App\Controller\ResettingController.inner'
+            - '@event_dispatcher'
+            - '@fos_user.resetting.form.factory'
+            - '@fos_user.user_manager'
+            - '@fos_user.util.token_generator'
+            - '@fos_user.mailer'
+            - '%fos_user.resetting.retry_ttl%'
+            - '@service_container'
+
+
+==================
+
+
+Remember to change the name of the controller in the routes or annotation file.
+```
+
+**Pay attention to the last line of output, the route (or routes) for those actions that you want to reload must be manually adjusted in the route configuration! (Because the team cannot know which of the controller actions you want to overload).
+
+##### Troubles
+
+If during the process you suddenly saw the error `Cannot autowire service ...`, then you forgot to copy the configuration fragment to your services.yaml.
+
+You can remove file
+
+`/home/user/sym3.4project/src/Controller/ResettingController.php`
+
+(file path from example [Usage](####usage) section)
+
+or append yaml configuration fragment to your services.yaml.
 
 
 # Ru
@@ -419,3 +501,83 @@ liip_imagine_filter:
         filter: '[A-z0-9_-]*'
         path: .+
 ```
+
+### Commands
+
+#### landlib:decorate-controller
+
+##### Что это
+
+Когда я решил декорировать контроллер FOSUserBundle ResettingController оказалось сложным написать конфигурацию регистрации нового сервиса. Помимо  того, что я должен найти псевдонимы всех сервисов, которые принимает оригинальный контроллер, я должен написать класс, почти все методы которого просто вызывают методы декорируемого контроллера (это скучно!).
+
+Мы хотим как можно больше использовать хорошие готовые решения, это значит, что операция декорирования контроллера из стороннего пакета будет рутинной.
+
+Поэтому я создал консольную команду
+
+```bash
+php bin/console landlib:decorate-controller
+```
+
+которая создаёт заготовку класса контроллера, декорирующего нужный сервис и выводит в stdout фрагмент yaml конфигурации нового сервиса. Вам остаётся просто скопировать эту конфигурацию в ваш 
+
+`config/services.yaml`.
+
+##### Установка
+
+`composer require landlib/symfonytoolsbundle`
+
+##### Использование
+
+На примере декорирования `FOS\UserBundle\Controller\ResettingController`
+
+`php bin/console landlib:decorate-controller`
+
+Команда попросит ввести путь к перегружаемому контроллеру. Надо ввести абсолютный путь, например
+
+`/home/user/sym3.4project/vendor/friendsofsymfony/user-bundle/Controller/ResettingController.php`
+
+После этого команда сгенерирует файл 
+
+`/home/user/sym3.4project/src/Controller/ResettingController.php`
+
+**Если файл уже существует, он будет перезаписан или удалён! Копии не сохраняется.
+
+и выведет фрагмент yaml конфигурации:
+
+```
+Add in your configuration config/services.yaml: 
+==================
+
+
+    App\Controller\ResettingController:
+        decorates: fos_user.resetting.controller
+        arguments:
+            - '@App\Controller\ResettingController.inner'
+            - '@event_dispatcher'
+            - '@fos_user.resetting.form.factory'
+            - '@fos_user.user_manager'
+            - '@fos_user.util.token_generator'
+            - '@fos_user.mailer'
+            - '%fos_user.resetting.retry_ttl%'
+            - '@service_container'
+
+
+==================
+
+
+Remember to change the name of the controller in the routes or annotation file.
+```
+
+**Обратите внимание, на последнюю строку вывода, маршрут(или маршруты) для тех actions, которые вы хотите перегрузить необходимо корректировать в конфигурации маршрутов вручную! (Потому что команда не может знать, какие из actions контроллера вы хотите перегрузить).
+
+##### Проблемы
+
+Если в процессе работы вы внезапно увидели ошибку `Cannot autowire service...`, значит вы забыли скопировать фрагмент конфигурации в ваш services.yaml.
+
+Вы можете удалить файл 
+
+`/home/user/sym3.4project/src/Controller/ResettingController.php`
+
+(путь к файлу приведен для примера из раздела Использование)
+
+или добавить фрагмент конфигурации в ваш services.yaml.

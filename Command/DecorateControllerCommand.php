@@ -5,6 +5,7 @@ namespace Landlib\SymfonyToolsBundle\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
@@ -79,6 +80,7 @@ class DecorateControllerCommand extends Command
 	{
 		//$this->addArgument('testing', InputArgument::REQUIRED, 'Why?');
 		$this->setDescription('Decorate-controller will decorated target  controller from third-party bundle')
+			->addArgument('target', InputArgument::OPTIONAL, 'Path to controller which need decorate')
 			->setHelp('It help');
 		
 		
@@ -96,7 +98,15 @@ class DecorateControllerCommand extends Command
 			return;
 		}
 		
-		$this->_sTargetPhpFile = $this->_showEnterMessage('Enter path to php file with override controller');
+		$this->_sTargetPhpFile = $input->getArgument('target');
+		
+		if (!file_exists($this->_sTargetPhpFile)) {
+			$this->_sTargetPhpFile = '';
+		}
+		
+		if (!$this->_sTargetPhpFile) {
+			$this->_sTargetPhpFile = $this->_showEnterMessage('Enter path to php file with override controller');
+		}
 		
 		
 		$this->_showText($this->_sTargetPhpFile);
@@ -123,11 +133,17 @@ class DecorateControllerCommand extends Command
 		}
 		$this->_generateDestFileContent();
 		$this->_generateYamlConfigFragment();
+		if (!$this->_sTargetClassAlias) {
+			@unlink($this->_sDestPhpFile);
+			$this->_showError("Unable get aliases for service \n'{$this->_sTargetPhpFile}'\n\nMake sure, than file containts service definition and service registred.\n");
+			return;
+		}
 		$separator = "\n==================\n";
 		$this->_showText("Add in your configuration config/services.yaml: \n" . $separator);
 		$this->_showText($this->_sYamlConfigFragment);
 		$this->_showText($separator);
 		$this->_showText("Remember to change the name of the controller in the routes or annotation file.");
+		file_put_contents($this->_sAppRoot . '/service.ftagmet.yaml', $this->_sYamlConfigFragment);
 	}
 	/**
 	 * Generate Yaml service configuration for file config/services.yaml
@@ -153,7 +169,8 @@ class DecorateControllerCommand extends Command
 		$a = explode('\\', $this->_sClassName);
 		$selfAlias = 'App\\Controller\\' . $a[count($a) - 1];
 		$s = str_replace('{{self_alias}}', $selfAlias, $sConfigTemplate);
-		$s = str_replace('{{target_alias}}', $oConfigurationParser->getServiceAlias($this->_sClassName, $this->_sAppRoot, $sPriorityPath), $s);
+		$this->_sTargetClassAlias = $sTargetClassAlias = $oConfigurationParser->getServiceAlias($this->_sClassName, $this->_sAppRoot, $sPriorityPath);
+		$s = str_replace('{{target_alias}}', $sTargetClassAlias, $s);
 		$sa = '';
 		if (count($aList)) {
 			$a = [];

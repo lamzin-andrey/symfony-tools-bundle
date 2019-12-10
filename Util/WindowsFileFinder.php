@@ -17,9 +17,9 @@ class WindowsFileFinder implements IFileFinder {
 	*/
 	public function search(string $sClassName, string $sTargetDirectory) : array
 	{
-		if (!preg_match("#.*/$#", $sTargetDirectory)) {
-			$sTargetDirectory .= '/';
-		}
+		//if (!preg_match("#.*/$#", $sTargetDirectory)) {
+		//	$sTargetDirectory .= '/';
+		//}
 		$aResult = [];
 		$this->_search($aResult, $sClassName, $sTargetDirectory, 'xml');
 		$this->_search($aResult, $sClassName, $sTargetDirectory, 'yml');
@@ -32,7 +32,9 @@ class WindowsFileFinder implements IFileFinder {
 	public function _search(array &$aResult, string $sClassName, string $sTargetDirectory, string $sExtension) : void
 	{
 		echo "Search {$sExtension} files...\n";
-		$sCmd = 'echo off && for /R ' . $sTargetDirectory . ' %f in (.) do @' . $this->_sFindBinary . ' /i "' . $sClassName . '" %f\*.' . $sExtension . ' 2>null && echo on';
+		$sCmd = 'findstr /I /S /C:"FOS\UserBundle\Controller\ChangePasswordController" D:\php-proj\hellos34\vendor\friendsofsymfony\user-bundle\Resources\config\*.xml';
+		$sCmd = $this->_sFindBinary . ' /I /S /C:"' . $sClassName . '" ' . $sTargetDirectory . '\*.' . $sExtension;
+		//echo "\n\n$sCmd\n\n";
 		exec($sCmd, $aOut);
 		
 		$nSz = count($aOut);
@@ -42,16 +44,13 @@ class WindowsFileFinder implements IFileFinder {
 				continue;
 			}
 			$a = explode(':', $sLine);
-			$sign = '---------- ';
-			if (strpos($sLine, $sign) === 0) {
-				$sNextLine = ($aOut[$i + 1] ?? '');
-				if (strpos($sNextLine, $sClassName) !== false) {
-					$oItem = new \StdClass();
-					$oItem->path = trim(str_replace($sign, '', $sLine));
-					$oItem->content = trim($sNextLine);
-					$aResult[] = $oItem;
-				}
-				
+			$sPath = trim($a[0] . ':' . $a[1]);
+			if (count($a) >= 3 && file_exists($sPath)) {
+				$oItem = new \StdClass();
+				$oItem->path = $sPath;
+				unset($a[0], $a[1]);
+				$oItem->content = trim(join(':', $a));
+				$aResult[] = $oItem;
 			}
 		}
 	}
