@@ -1,8 +1,9 @@
 #### Content / Содержание
 
+[Ru](#ru)
+
 [En](#en)
 
-[Ru](#ru)
 
 # En
 
