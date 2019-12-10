@@ -2,6 +2,7 @@
 
 namespace Landlib\SymfonyToolsBundle\Command;
 
+use Landlib\SymfonyToolsBundle\Util\ConsoleTools;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -66,16 +67,6 @@ class DecorateControllerCommand extends Command
 	// the name of the command (the part after "bin/console")
 	protected static $defaultName = 'landlib:decorate-controller';
 
-	public function fooBar($nonf, ChoiceQuestion $oCk, string $boo = 'ra', App\Entity\Users $oUser = null, $k = 0, string $po = "opa") : bool
-	{
-		return  false;
-	}
-
-	public function barFoo($nonf)
-	{
-
-	}
-
 	protected function configure()
 	{
 		$this->setDescription('Decorate-controller will decorated target  controller from third-party bundle')
@@ -88,8 +79,8 @@ class DecorateControllerCommand extends Command
 		$this->_output = $output;
 		$this->_input = $input;
 		$this->_bFileIsController = false;
-		
-		$this->_searchAppRoot();
+
+		$this->_sAppRoot = ConsoleTools::searchAppRoot();
 		if (!$this->_sAppRoot) {
 			$this->_showError('Not found Symfony application root directory. Unable find "symfony.lock" file, and folders "config", "bin", "public", "src", "templates"');
 			return;
@@ -106,16 +97,16 @@ class DecorateControllerCommand extends Command
 		}
 		
 		
-		$this->_showText($this->_sTargetPhpFile);
+		ConsoleTools::showText($this->_sTargetPhpFile);
 		
 		if (!file_exists($this->_sTargetPhpFile)) {
-			$this->_showError('Invalid target file name. File "' . $this->_sTargetPhpFile . '" not found.');
+			ConsoleTools::showError('Invalid target file name. File "' . $this->_sTargetPhpFile . '" not found.', $this->_output);
 			return;
 		}
 		$this->_parseTargetFile();
 		$nl = "\n";
 		if (!$this->_bFileIsController) {
-			$this->_showError('File ' . $nl . '"' . $this->_sTargetPhpFile . '"' . $nl . ' is not containts controller definition.');
+			ConsoleTools::showError('File ' . $nl . '"' . $this->_sTargetPhpFile . '"' . $nl . ' is not containts controller definition.', $this->_output);
 			return;
 		}
 
@@ -132,15 +123,14 @@ class DecorateControllerCommand extends Command
 		$this->_generateYamlConfigFragment();
 		if (!$this->_sTargetClassAlias) {
 			@unlink($this->_sDestPhpFile);
-			$this->_showError("Unable get aliases for service \n'{$this->_sTargetPhpFile}'\n\nMake sure, than file containts service definition and service registred.\n");
+			ConsoleTools::showError("Unable get aliases for service \n'{$this->_sTargetPhpFile}'\n\nMake sure, than file containts service definition and service registred.\n");
 			return;
 		}
 		$separator = "\n==================\n";
-		$this->_showText("Add in your configuration config/services.yaml: \n" . $separator);
-		$this->_showText($this->_sYamlConfigFragment);
-		$this->_showText($separator);
-		$this->_showText("Remember to change the name of the controller in the routes or annotation file.");
-		file_put_contents($this->_sAppRoot . '/service.ftagmet.yaml', $this->_sYamlConfigFragment);
+		ConsoleTools::showText("Add in your configuration config/services.yaml: \n" . $separator);
+		ConsoleTools::showText($this->_sYamlConfigFragment);
+		ConsoleTools::showText($separator);
+		ConsoleTools::showText("Remember to change the name of the controller in the routes or annotation file.");
 	}
 	/**
 	 * Generate Yaml service configuration for file config/services.yaml
@@ -306,57 +296,6 @@ class DecorateControllerCommand extends Command
 		return join("\n", $a);
 	}
 	/**
-	 * Output string in console
-	*/
-	private function _showText(string $sMessage)
-	{
-		echo "\n" . $sMessage . "\n";
-	}
-	/**
-	 *  Detected root folder Symfony 3.4 application. Set _sAppRoot variable
-	**/
-	private function _searchAppRoot()
-	{
-		$aFiles = ['config', 'bin', 'public', 'src', 'templates', 'symfony.lock'];
-		$nSz = count($aFiles);
-		$sDirname = dirname(__FILE__);
-		while (!$this->_checkDirAsAppRoot($sDirname, $aFiles, $nSz)) {
-			$sDirname = dirname($sDirname);
-			if (!$sDirname || $sDirname == '/') {
-				$this->_sAppRoot = '';
-				return;
-			}
-		}
-		$this->_sAppRoot = $sDirname;
-	}
-	/**
-	 * Show console message about error
-	 * @param string $sDirname
-	 * @param array $aFiles
-	 * @param int $nSz
-	 * @return bool
-	*/
-	private function _checkDirAsAppRoot(string $sDirname, array $aFiles, int $nSz) : bool
-	{
-		$aLs = scandir($sDirname);
-		$nLength = count($aLs);
-		$nControl = 0;
-		for ($i = 0; $i < $nLength; $i++) {
-			if (in_array($aLs[$i], $aFiles)) {
-				$nControl++;
-			}
-		}
-		return  ($nControl == $nSz);
-	}
-	/**
-	 *
-	 *  Show console message about error
-	**/
-	private function _showError(string $sMessage)
-	{
-		echo $this->_output->writeln('<error>' . $sMessage . '</error>');
-	}
-	/**
 	 * Wrapper console input
 	 * @param string $sMessage for example 'Enter a number'
 	 * @param mixed $default = '' for example ['one', 'two', 'three'] or 'Billion'. If type of argument is array, default value always in zero item.
@@ -364,18 +303,7 @@ class DecorateControllerCommand extends Command
 	*/
 	private function _showEnterMessage(string $sMessage, $default = '') : string
 	{
-		$oHelper = $this->getHelper('question');
-		$oQuestion = null;
-		if (is_array($default)) {
-			$oQuestion = new ChoiceQuestion(
-				$sMessage . '( default is ' . $default[0] . ')',
-				$default,
-				0
-			);
-		} else {
-			$oQuestion = new Question($sMessage . "\n", $default);
-		}
-		return $oHelper->ask($this->_input, $this->_output, $oQuestion);
+		return ConsoleTools::showEnterMessage($sMessage, $this, $this->_input, $this->_output, $default);
 	}
 	/***
 	 * Append use ... ; string into $this->_aUses variable

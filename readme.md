@@ -18,6 +18,7 @@
 [Commands](#commands)
 
 [landlib:decorate-controller](#landlibdecorate-controller)
+[landlib:service-alias](#landlibservice-alias)
 
 
 ##	About
@@ -293,6 +294,7 @@ After request command wil generate file
 
 **If file already exists, it will rewrite or remove! No copies are saved.**
 
+
 and will output the yaml fragment of the configuration:
 
 ```
@@ -335,6 +337,48 @@ You can remove file
 or append yaml configuration fragment to your services.yaml.
 
 
+#### landlib:service-alias
+
+[About](#about-2)
+
+[Usage](#usage-1)
+
+##### About
+
+You can quick get service alias with command
+
+```bash
+php bin/console landlib:service-alias
+```
+
+##### Install
+
+See [Install](#install).
+
+##### Usage
+
+For example get alias for service from FOSUserBundle `FOS\UserBundle\Controller\ResettingController`
+
+`php bin/console landlib:service-alias`
+
+Command will request enter the fill class name. Need enter with namespace, for example
+
+`FOS\UserBundle\Controller\ResettingController`
+
+After request command will output:
+
+```
+Your service alias: 
+
+==================
+
+
+fos_user.resetting.controller
+
+
+==================
+```
+
 # Ru
 
 #### Содержание
@@ -348,6 +392,7 @@ or append yaml configuration fragment to your services.yaml.
 [Commands](#commands-1)
 
 [landlib:decorate-controller](#landlibdecorate-controller-1)
+[landlib:service-alias](#landlibservice-alias-1)
 
 
 ##	Что это
@@ -660,3 +705,47 @@ Remember to change the name of the controller in the routes or annotation file.
 (путь к файлу приведен для примера из раздела [Использование](#использование))
 
 или добавить фрагмент конфигурации в ваш services.yaml.
+
+
+#### landlib:service-alias
+
+[Что это](#что-это-3)
+
+[Использование](#использование-2)
+
+##### Что это
+
+You can quick get service alias with command
+
+```bash
+php bin/console landlib:service-alias
+```
+
+##### Установка
+
+See [Установка](#установка).
+
+##### Использование
+
+Для примера получим псевдоним сервиса из  FOSUserBundle `FOS\UserBundle\Controller\ResettingController`
+
+
+`php bin/console landlib:service-alias`
+
+Команда запросит полное имя класса, с namespace, например
+
+`FOS\UserBundle\Controller\ResettingController`
+
+После чего выведет
+
+```
+Your service alias: 
+
+==================
+
+
+fos_user.resetting.controller
+
+
+==================
+```

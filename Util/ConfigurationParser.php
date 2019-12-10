@@ -38,10 +38,12 @@ class ConfigurationParser {
 			$sTailVendor = '\\vendor';
 			$sTailSrc = '\\src';
 		}
-		echo "Scanning priority directory...\n";
-		$aFilenamesVendor = $oFileFinder->search($sClassName, $sTargetPriorityDirectory);
-		$sFilename = $this->_getServiceDefinitionFile($aFilenamesVendor);
-		
+		$sFilename = '';
+		if ($sTargetPriorityDirectory) {
+			echo "Scanning priority directory...\n";
+			$aFilenamesVendor = $oFileFinder->search($sClassName, $sTargetPriorityDirectory);
+			$sFilename = $this->_getServiceDefinitionFile($aFilenamesVendor);
+		}
 		if (!$sFilename) {
 			echo "Scanning vendor directory...\n";
 			$aFilenamesVendor = $oFileFinder->search($sClassName, $sTargetDirectory . $sTailVendor);
@@ -73,7 +75,7 @@ class ConfigurationParser {
 	 * @param string $sTargetPriorityDirectory
 	 * @return string service alias.
 	 */
-	public function getServiceAlias(string $sClassName, string $sTargetDirectory, string $sTargetPriorityDirectory)
+	public function getServiceAlias(string $sClassName, string $sTargetDirectory, string $sTargetPriorityDirectory = '')
 	{
 		if ($this->_sAlias && $this->_sClassName == $sClassName) {
 			return $this->_sAlias;

@@ -8,6 +8,10 @@
         <service id="landlib_symfony_tools.command.decorate_controller" class="Landlib\SymfonyToolsBundle\Command\DecorateControllerCommand">
             <tag name="console.command" command="landlib:decorate-controller" />
         </service>
+
+        <service id="landlib_symfony_tools.command.service_alias" class="Landlib\SymfonyToolsBundle\Command\GetServiceAliasCommand">
+            <tag name="console.command" command="landlib:service-alias" />
+        </service>
     </services>
 
 </container>
