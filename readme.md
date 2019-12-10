@@ -287,7 +287,7 @@ You can remove file
 
 `/home/user/sym3.4project/src/Controller/ResettingController.php`
 
-(file path from example [Usage](####usage) section)
+(file path from example [Usage](#usage) section)
 
 or append yaml configuration fragment to your services.yaml.
 
