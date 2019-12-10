@@ -25,12 +25,6 @@
 
 [landlib:decorate-controller](#landlibdecorate-controller)
 
-[About](#about-1)
-
-[Usage](#usage)
-
-[Тroubles](#troubles)
-
 
 ##	About
 
@@ -243,6 +237,12 @@ liip_imagine_filter:
 
 #### landlib:decorate-controller
 
+[About](#about-1)
+
+[Usage](#usage)
+
+[Тroubles](#troubles)
+
 ##### About
 
 When I decided to decorate the FOSUserBundle ResettingController controller, it turned out to be difficult to write a new service registration configuration. Besides the fact that I have to find the aliases of all the services that the original controller accepts, I have to write a class, almost all methods of which simply call the methods of the decorated controller (it's boring!).
@@ -329,7 +329,7 @@ or append yaml configuration fragment to your services.yaml.
 
 #### Содержание
 
-[Что-это](#что-это)
+[Что это](#что-это)
 
 [Сервисы (Services)](#сервисы-services)
 
@@ -345,11 +345,6 @@ or append yaml configuration fragment to your services.yaml.
 
 [landlib:decorate-controller](#landlibdecorate-controller-1)
 
-[Что это](#что-это-1)
-
-[Использование](#использование)
-
-[Проблемы](#проблемы)
 
 ##	Что это
 
@@ -562,6 +557,12 @@ liip_imagine_filter:
 ### Commands
 
 #### landlib:decorate-controller
+
+[Что это](#что-это-1)
+
+[Использование](#использование)
+
+[Проблемы](#проблемы)
 
 ##### Что это
 
