@@ -22,11 +22,22 @@
 
 ##	About
 
+This tools for more comfortable work with Symfony.
+
 ## Install
 
 `composer require landlib/symfonytoolsbundle`
 
-This tools for more comfortable work with Symfony.
+Add in your `config/bundles.php`
+
+array item
+
+```php
+return [
+// ...
+Landlib\SymfonyToolsBundle\SymfonyToolsBundle::class => ['all' => true]
+];
+```
 
 ### Services
 
@@ -264,7 +275,7 @@ Generated controller already containts wrappers for all methods of original cont
 
 ##### Install
 
-`composer require landlib/symfonytoolsbundle`
+See [Install](#install.
 
 ##### Usage
 
@@ -348,6 +359,17 @@ or append yaml configuration fragment to your services.yaml.
 ## Установка 
 
 `composer require landlib/symfonytoolsbundle`
+
+Добавьте в ваш `config/bundles.php`
+
+элемент массива
+
+```php
+return [
+// ...
+Landlib\SymfonyToolsBundle\SymfonyToolsBundle::class => ['all' => true]
+];
+```
 
 ### Сервисы (Services)
 
@@ -583,7 +605,7 @@ php bin/console landlib:decorate-controller
 
 ##### Установка
 
-`composer require landlib/symfonytoolsbundle`
+См. [Установка](#установка).
 
 ##### Использование
 
