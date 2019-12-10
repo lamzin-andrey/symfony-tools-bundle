@@ -289,6 +289,7 @@ You can remove file
 
 (file path from example [Usage](#usage) section)
 
+
 or append yaml configuration fragment to your services.yaml.
 
 
@@ -578,6 +579,6 @@ Remember to change the name of the controller in the routes or annotation file.
 
 `/home/user/sym3.4project/src/Controller/ResettingController.php`
 
-(путь к файлу приведен для примера из раздела Использование)
+(путь к файлу приведен для примера из раздела [Использование](#использование))
 
 или добавить фрагмент конфигурации в ваш services.yaml.
