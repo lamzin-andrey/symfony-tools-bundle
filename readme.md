@@ -717,7 +717,7 @@ Remember to change the name of the controller in the routes or annotation file.
 
 ##### Что это
 
-You can quick get service alias with command
+Вы можете быстро получить псевдоним сервиса используя
 
 ```bash
 php bin/console landlib:service-alias
