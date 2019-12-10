@@ -293,8 +293,6 @@ After request command wil generate file
 
 **If file already exists, it will rewrite or remove! No copies are saved.**
 
-и выведет фрагмент yaml конфигурации:
-
 and will output the yaml fragment of the configuration:
 
 ```
