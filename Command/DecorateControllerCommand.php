@@ -76,7 +76,7 @@ class DecorateControllerCommand extends Command
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-		$this->_output = $output;
+		ConsoleTools::$output = $this->_output = $output;
 		$this->_input = $input;
 		$this->_bFileIsController = false;
 

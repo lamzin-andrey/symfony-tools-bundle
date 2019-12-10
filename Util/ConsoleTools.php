@@ -8,7 +8,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 class ConsoleTools
 {
 	/** @property OutputInterface $output */
-	static $output = null;
+	static public $output = null;
 	/**
 	 *  Detected root folder Symfony 3.4 application. Set _sAppRoot variable
 	**/
