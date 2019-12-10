@@ -12,21 +12,24 @@
 
 [Services](#services)
 
-	[FileUploaderService](#fileuploaderservice)
+[FileUploaderService](#fileuploaderservice)
 
-		[Example settings](#example-settings)
+[Example settings](#example-settings)
 
-		[Example save](#example-save)
+[Example save](#example-save)
 
-		[Example liipimaginebundle configuration](#example-liipimaginebundle-configuration)
+[Example liipimaginebundle configuration](#example-liipimaginebundle-configuration)
 
 [Commands](#commands)
 
-	[landlib:decorate-controller](#landlibdecorate-controller)
+[landlib:decorate-controller](#landlibdecorate-controller)
 
-		[About](#about-1)
+[About](#about-1)
 
-[](#)
+[Usage](#usage)
+
+[Тroubles](#troubles)
+
 
 ##	About
 
@@ -322,6 +325,30 @@ or append yaml configuration fragment to your services.yaml.
 
 
 # Ru
+
+#### Содержание
+
+[Что-это](#что-это)
+
+[Сервисы (Services)](#сервисы-services)
+
+[FileUploaderService](#fileuploaderservice-1)
+
+[Example settings](#example-settings-1)
+
+[Example save](#example-save-1)
+
+[Пример конфигурации LiipImagineBundle](#пример-конфигурации-liipimaginebundle)
+
+[Commands](#commands-1)
+
+[landlib:decorate-controller](#landlibdecorate-controller-1)
+
+[Что это](#что-это-1)
+
+[Использование](#использование)
+
+[Проблемы](#проблемы)
 
 ##	Что это
 
